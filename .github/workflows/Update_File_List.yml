@@ -1,0 +1,68 @@
+name: Update File List
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-file-list:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Generate file list
+        run: |
+          echo "<!DOCTYPE html>
+          <html lang='en'>
+          <head>
+              <meta charset='UTF-8'>
+              <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+              <title>File List</title>
+              <style>
+                  body {
+                      font-family: Arial, sans-serif;
+                      margin: 20px;
+                  }
+                  h1 {
+                      font-size: 24px;
+                      margin-bottom: 20px;
+                  }
+                  ul {
+                      list-style-type: none;
+                      padding: 0;
+                  }
+                  li {
+                      margin: 5px 0;
+                  }
+                  a {
+                      text-decoration: none;
+                      color: #007BFF;
+                  }
+                  a:hover {
+                      text-decoration: underline;
+                  }
+              </style>
+          </head>
+          <body>
+              <h1>File List</h1>
+              <ul id='file-list'>" > index.html
+
+          for file in $(ls -1 *.apk | sort); do
+            echo "<li><a href='$file'>$file</a></li>" >> index.html
+          done
+
+          echo "</ul>
+          </body>
+          </html>" >> index.html
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m "Update index.html with file list"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
