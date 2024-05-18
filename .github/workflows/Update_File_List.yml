@@ -43,14 +43,27 @@ jobs:
                   a:hover {
                       text-decoration: underline;
                   }
+                  .latest::before {
+                      content: 'Latest: ';
+                      font-weight: bold;
+                      color: #FF0000;
+                  }
               </style>
           </head>
           <body>
-              <h1>File List</h1>
+              <h1>Releases</h1>
               <ul id='file-list'>" > index.html
 
-          for file in $(ls -1 *.apk | sort); do
-            echo "<li><a href='$file'>$file</a></li>" >> index.html
+          # Get the latest file
+          latest_file=$(ls -1t *.apk | head -n 1)
+
+          # Loop through all APK files sorted by modification date in descending order
+          for file in $(ls -1t *.apk); do
+            if [ "$file" == "$latest_file" ]; then
+              echo "<li class='latest'><a href='$file'>$file</a></li>" >> index.html
+            else
+              echo "<li><a href='$file'>$file</a></li>" >> index.html
+            fi
           done
 
           echo "</ul>
